@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title >All Teachers</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/showstudents.css')}}">
+  
+</head>
+<body>
+
+
+
+  <!-- add teacher -->
+  <div class="modal fade" id="add_teacher" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h4 class="modal-title fs-5" id="exampleModalLabel">Update teacher</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <form action="///">
+            <div class="mb-2" id="show_img1">
+              <label for="register_img" class="col-form-label">+</label>
+              <input type="file" class="form-control" id="register_img" accept="image/*" onchange="showImg(event)">
+              <img id="preview_img" src="images/default_user.png" alt="">
+            </div>
+            <div class="mb-2">
+            <label for="register_name" class="col-form-label">Name</label>
+            <input type="text" class="form-control" id="register_name">
+            </div>
+            <div class="mb-2">
+            <label for="register_email" class="col-form-label">Email</label>
+            <input type="email" class="form-control" id="register_email">
+            </div>
+            <div class="mb-2">
+            <label for="register_phone" class="col-form-label">Phone</label>
+            <input type="text"  class="form-control" id="register_phone">
+            </div>
+            <div class="mb-2">
+            <label for="register_description" class="col-form-label">Specialty</label>
+            <input type="text" class="form-control" id="register_description">
+            </div>
+            
+        </form>
+        </div>
+        <div class="modal-footer">
+        <button id="update_btn" type="button" name="name"  class="btn btn-primary" onclick=" updateTeacher(name)">Update </button>
+        </div>
+    </div>
+    </div>
+</div>
+<!-- /add teacher -->
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+          <a href="Admin.html" style="text-decoration: none;"><h2 style="font-size: 30px; margin:0 10px;">Courses</h2></a> 
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/admin">Home</a>
+                  </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/allusers">All Users</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/showteachers">All Teachrs</a>
+              </li>
+             
+              
+            </ul>
+          </div>
+        </div>
+      </nav>
+  
+   
+   
+    <div id="body"></div>
+     
+</body>
+<style>
+    button{
+      background-color: rgba(90, 82, 255,1);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      width: 80px;
+      border: none;
+      height: 35px;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 999;
+
+    }
+    #search{
+        position: absolute;
+        width:370;
+        height: 40px;
+        right: 140px;
+        top:90px;
+    }
+    #search button{
+    background-color: rgba(42, 31, 200, 1);
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    width: 120px;
+    border: none;
+    height: 35px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 999;
+    }
+    #search input{
+    width: 250px;
+    height: 35px;
+    }
+
+</style>
+<script>
+    
+    function getAllTrainers(){
+    const body = document.getElementById('body')
+    axios.get('/getteachers')
+    .then(function (response) {
+    // handle success
+    teachers = response.data.teachers;
+    if (teachers[0] == undefined){
+        body.innerHTML = `<h1>There are no teachers yet</h1>`
+      }else{
+        body.innerHTML = `
+                            <div id='search'>
+                            <input type="text" id="name" placeholder="Enter teacher name" > 
+                            <button type="button" onclick="getTeacherByName()" >Search</button>    
+                            </div> 
+                            <h3>All Teachers</h3>
+                            <table class="content-table">
+                                <thead>
+                                  <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>Specialty</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Update</th>
+                                    <th>Delete</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                  
+                              
+                        
+                                 
+                                </tbody>
+                              </table>
+                                `
+        const tbody = document.getElementById("tbody")
+        let rank = 1
+        for (teacher of teachers){
+          info = `
+                              <tr>
+                                <td>${rank}</td>
+                                <td>${teacher.name}</td>
+                                <td>${teacher.description}</td>
+                                <td>${teacher.email}</td>
+                                <td>${teacher.phone}</td>
+                                <td><button id=${teacher.name}  class="nav-link active" aria-current="page" data-bs-toggle="modal" data-bs-target="#add_teacher" onclick="get_name(id)" style="background-color: green;">Update</button></td>
+                                <td><button id=${teacher.name} type="button" style="background-color: red;" onclick="Delete(id)"> Delete</button></td>
+                              </tr>
+                            ` 
+          tbody.innerHTML +=  info                
+          rank +=1
+        }
+        
+      }
+
+    
+    })
+  }
+  
+  getAllTrainers()
+ 
+  function getTeacherByName(){
+      
+    let name = document.getElementById("name").value
+    axios.get(`/getteacherByname/${name}`)
+    .then(function (response) {
+    // handle success
+    teacher = response.data
+        body.innerHTML = `  <div id='search'>
+                            <input type="text" id="name" placeholder="Enter Teacher name">
+                            <button onclick="getTeacherByName()" >Search</button>    
+                            </div> 
+                            <h3>All Teachers</h3>
+                            <table class="content-table">
+                                <thead>
+                                  <tr>
+                                    <th>Name</th>
+                                    <th>Specialty</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Update</th>
+                                    <th>Delete</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                  
+                                    <tr>
+                                        <td>${teacher.name}</td>
+                                        <td>${teacher.description}</td>
+                                        <td>${teacher.email}</td>
+                                        <td>${teacher.phone}</td>
+                                        <td><button id=${teacher.name}  class="nav-link active" aria-current="page" data-bs-toggle="modal" data-bs-target="#add_teacher" onclick="get_name(id)">Update</button></td>
+                                        <td><button id=${teacher.name} type="button" style="background-color: red;" onclick="Delete(id)"> Delete</button></td>
+                                    </tr>
+                        
+                                 
+                                </tbody>
+                              </table>
+                                `})
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: `${name} Not Found`,
+          })
+     
+     })
+  }
+
+  function get_name(teacherName){
+    showDetails(teacherName)
+  }
+
+  function showDetails(teacherName){
+  const teacher_name = teacherName
+  let add_teacherModel = document.getElementById("add_teacher") 
+  const modalInstance = bootstrap.Modal.getInstance(add_teacherModel)
+  let name = document.getElementById("register_name")
+  let description= document.getElementById("register_description")
+  let email = document.getElementById("register_email")
+  let phone = document.getElementById("register_phone")
+  const img = document.getElementById("register_img")
+  const preview_img = document.getElementById("preview_img")
+  const update_btn = document.getElementById("update_btn")
+
+  axios.get(`/getteacherByname/${teacherName}`)
+  .then(function (response) {
+    teacher = response.data
+    name.value = teacher.name
+    description.value = teacher.description
+    email.value = teacher.email
+    phone.value = teacher.phone 
+    preview_img.src = teacher.img
+    update_btn.setAttribute("name",`${teacher.name}`)
+  })
+ }
+
+  function updateTeacher(name){
+    let add_teacherModel = document.getElementById("add_teacher") 
+    const modalInstance = bootstrap.Modal.getInstance(add_teacherModel)
+    let name1 = document.getElementById("register_name").value
+    let description= document.getElementById("register_description").value
+    let email = document.getElementById("register_email").value
+    let phone = document.getElementById("register_phone").value
+    const img = document.getElementById("register_img").files[0]
+
+    let formData = new FormData()
+    formData.append("name",name1)
+    formData.append("email",email)
+    formData.append("phone",phone)
+    formData.append("description",description)
+    formData.append("img", img)
+
+    axios.put(`/updateteacher/${name}`,formData,{
+      headers:{
+        "Content-Type":"multipart/form-data",}
+      })
+      .then(function (response) {
+      Swal.fire(response.request.response, '', 'success')
+      modalInstance.hide()
+      setTimeout(function(){
+        window.location.reload()
+      } ,2500)
+      })
+      .catch(function (response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: response.request.response,
+      })
+    })
+  }
+
+  function deleteTeacher(name){
+    axios.put(`/deleteteacher/${name}`)
+        .then(function (response) {
+          setTimeout(function(){
+            window.location.reload()
+          } ,2500)
+        })
+        .catch(function (response) {
+          Swal.fire(response.request.response, '', 'info')
+        })
+
+  }
+
+
+  function Delete(name){
+      
+    Swal.fire({
+      title: `Are you sure you want to delete ${name}?`,
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText:`Don't delete` ,
+      denyButtonText: 'Delete',
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isDenied) {
+        Swal.fire('Deleted!', '', 'success')
+        deleteTeacher(name)
+      }
+    })
+    
+  }
+  function showImg(event){
+    if(event.target.files.length > 0){
+      var src = URL.createObjectURL(event.target.files[0]);
+      var preview = document.getElementById("preview_img");
+      preview.src = src;
+      preview.style.display = "block";
+    }
+  }
+ 
+  
+</script>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/info.css')}}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="{{url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css')}}" rel="stylesheet">
+    
+    <title id="title_course">Information</title>
+</head>
+<body>
+    <nav id="nav">
+      <a href="/"><h1 class="logo">COURSES</h1></a>  
+       
+    </nav>
+   
+
+    <div class="header" id="containt" style="top: 150px;">
+        
+        
+    </div>
+
+    <div id="teachers_info" class="teacher">
+        
+    </div>
+    <div id="show_btn">
+
+    </div>
+
+    <!--Footer  -->
+    <div id="footer" class="container d-md-flex py-4">
+
+        <div class="me-md-auto text-center text-md-start">
+        <div class="copyright" style="left:20px;position: relative;">
+            &copy; Copyright <strong><span>Courses</span></strong>. 
+        </div>
+        </div>
+        <div id="social" class="social-links text-center text-md-right pt-3 pt-md-0"style=" right:20px;position: relative;">
+        <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+        <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+        <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+        <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+        <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        </div>
+    </div>
+    
+    
+    
+</body>
+<script>
+    function checkEnroll(id){
+        let token = localStorage.getItem('token')
+        let show = document.getElementById("show_btn")
+        if (token==null){
+            show.innerHTML=`<button class="enroll" id="${id}"  onclick="enroll(id)">Enroll Now</button>`
+        }else{
+            params={
+                'course_id':id
+            }
+            axios.post(`/checkenroll`,params,{headers:{
+                'authorization':`Bearer ${token}`
+            }})
+            .then(function (response) {
+                status=response.data.status
+                if(status==='enroll'){
+                    show.innerHTML=`
+                        <button class="enroll" id="${id}"  onclick="unEnrolled(id)">unenrolled</button>
+                        `
+                }else{
+                    show.innerHTML=`
+                    <button class="enroll" id="${id}"  onclick="enroll(id)">Enroll Now</button>
+                    ` 
+                }
+            })
+            
+           
+        }
+    }
+
+
+
+
+
+
+    function getCourseByTitle(){
+        let name = window.location.hash.substring(1)
+        let show = document.getElementById("containt")
+        let title_course = document.getElementById("title_course")
+        let teachersInfo = document.getElementById("teachers_info")
+        axios.get(`/courseteacher/${name}`)
+        .then(function (response) {
+            teachers = response.data.teachers
+            if (teachers[0] != undefined ){
+                teachersInfo.innerHTML = `
+                <h2> Trainers</h2>
+                <div id="teacher_info" class="cards">
+    
+    
+                </div>    
+                `
+            }    
+            const teacher_info = document.getElementById("teacher_info")
+            for (teacher of teachers){
+                info = `
+                <div class="card">
+                    <h3>${teacher.name}</h3>
+                    <p>${teacher.description} </p>
+                    <img class="pgn__avatar pgn__avatar-xl mx-auto border-0 mb-3" src="${teacher.img}" alt="">
+                </div>
+                `
+                teacher_info.innerHTML += info
+            }
+        })
+
+        axios.get(`/getcoursebytitle/${name}`)
+        .then(function (response) {
+            const course = response.data
+            title_course.innerHTML = course.title
+            checkEnroll(course.id)
+            show.innerHTML = `
+            <div class="title">
+                <div>  
+                    <h1>${course.title}</h1>
+                    <p>${course.description}</p>  
+                </div>
+                <img src=${course.img}>
+            </div>
+      
+                
+            <div class="icons">
+                <div class="cost_dur">
+                    <div class="svg">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" focusable="false" aria-hidden="true"><path d="M16.24 7.76A5.974 5.974 0 0012 6v6l-4.24 4.24c2.34 2.34 6.14 2.34 8.49 0a5.99 5.99 0 00-.01-8.48zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" fill="currentColor"></path></svg>
+                     
+                    </div>
+                    
+                    <div class="durtion">
+                        <h3 id="weeks">${course.week}</h3>
+                        <p id="hours">${course.hours_week}</p>
+                    </div>
+                    
+                </div>
+              
+                <div class="cost_dur">
+                    <div class="svg">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" focusable="false" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z" fill="currentColor"></path></svg>
+                    </div>
+                    <div class="cost">
+                        <h3>cost</h3>
+                        <p>${course.cost}</p>
+                    </div>
+                </div>
+            </div>
+            
+        
+    
+        </div>
+        <div class="about_course">
+            <div class="overview">
+                <h2>At a glance</h2>
+                <ul>
+                    <li>
+                        <span>Subject:</span><label>${course.subject}</label>
+                    </li>
+                    <li>
+                        <span>Level:</span><label>${course.level}</label>
+                    </li>
+                    <li>
+                        <span>Prerequisites:</span><label>${course.prerequisites}</label>
+                    </li>
+                    <li>
+                        <span>Language:</span><label>${course.language}</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="what">
+                <h2>What you'll learn</h2>
+                <div>
+                ${course.what_learn}
+                <div>
+            </div>
+            
+            `
+        
+        })
+        
+        }
+        getCourseByTitle()
+
+    function enroll(id){
+        let token = localStorage.getItem('token')
+        if (token==null){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'To enroll you need to login',
+              })
+        }else{
+            const params = {
+                "course_id":id
+                }  
+            axios.post('/enroll',params,{headers:{
+                'authorization':`Bearer ${token}`
+            }})
+            .then(function (response) {
+                Swal.fire(response.data, '', 'success')
+               
+            })
+            setTimeout(function(){
+                window.location.assign(`/`)
+              } ,2500)
+            
+              
+        }
+    }
+
+
+    function cancleEnroll(id){
+        let token = localStorage.getItem('token')
+            const params = {
+                "course_id":id
+                }  
+            axios.post('/unenrolled',params,{headers:{
+                'authorization':`Bearer ${token}`
+            }})
+            .then(function (response) {
+                
+            })
+              
+        
+    }
+
+    function unEnrolled(id){
+      
+        Swal.fire({
+          title: `Are you sure you want to cancel registration?`,
+          showDenyButton: true,
+          showCancelButton: false,
+          confirmButtonText: 'No',
+          denyButtonText: `Yes`,
+        }).then((result) => {
+          /* Read more about isConfirmed, isDenied below */
+        if (result.isDenied) {
+            cancleEnroll(id)
+            setTimeout(function(){
+                window.location.assign(`/`)
+              } ,2000)
+          }
+        })
+      }
+
+</script>
+
+</html>
+

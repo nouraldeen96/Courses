@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title >All Users</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/showstudents.css')}}">
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+          <a href="/admin" style="text-decoration: none;"><h2 style="font-size: 30px; margin:0 10px;">Courses</h2></a> 
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/admin">Home</a>
+                  </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/allusers">All Users</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/showteachers">All Teachrs</a>
+              </li>
+             
+              
+            </ul>
+          </div>
+        </div>
+      </nav>
+  
+   
+   
+    <div id="body"></div>
+     
+</body>
+<style>
+   
+  #search{
+      position: absolute;
+      width:370;
+      height: 40px;
+      right: 140px;
+      top:90px;
+    }
+    #search button{
+    background-color: rgba(42, 31, 200, 1);
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    width: 120px;
+    border: none;
+    height: 35px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 999;
+    }
+    #search input{
+    width: 250px;
+    height: 35px;
+    }
+
+</style>
+<script>
+
+ function getAllusers(){
+    const body = document.getElementById('body')
+    axios.get('/getusers')
+    .then(function (response) {
+    // handle success
+    users = response.data.Users;
+    if (users[0] == undefined){
+        body.innerHTML = `<h1>There are no users registered yet</h1>`
+      }else{
+        body.innerHTML = `
+                            <div id='search'>
+                            <input type="text" id="name" placeholder="Enter user name" > 
+                            <button type="button" onclick="getUserByName()" >Search</button>    
+                            </div> 
+                            <h3>All Users</h3>
+                            <table class="content-table">
+                                <thead>
+                                  <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                  
+                              
+                        
+                                 
+                                </tbody>
+                              </table>
+                                `
+        const tbody = document.getElementById("tbody")
+        let rank = 1
+        for (user of users){
+          tbody.innerHTML += `
+                              <tr>
+                                <td>${rank}</td>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.phone}</td>
+                              </tr>
+                            ` 
+          rank +=1
+        }
+        
+      }
+
+    
+    })
+  }
+  
+  getAllusers()
+  
+  function getUserByName(){
+      
+    let name = document.getElementById("name").value
+    axios.get(`/getuserByname/${name}`)
+    .then(function (response) {
+    // handle success
+    user = response.data
+        body.innerHTML = `  <div id='search'>
+                            <input type="text" id="name" placeholder="Enter user name">
+                            <button onclick="getUserByName()" >Search</button>    
+                            </div> 
+                            <h3>All Users</h3>
+                            <table class="content-table">
+                                <thead>
+                                  <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                  
+                                    <tr>
+                                        
+                                        <td>${user.name}</td>
+                                        <td>${user.email}</td>
+                                        <td>${user.phone}</td>
+                                    </tr>
+                        
+                                 
+                                </tbody>
+                              </table>
+                                `})
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: `${name} Not Found`,
+          })
+     
+     })
+  }
+
+</script>
+</html>
